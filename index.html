@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abakiki FC · JOVOC League 2023</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'deep-green': '#022c22',
+            'night-green': '#05130b',
+            'primary-dark': '#064e3b',
+            'forest-accent': '#10b981',
+            'gold-accent': '#f59e0b',
+          },
+          fontFamily: {
+            'oswald': ['Oswald', 'sans-serif'],
+            'inter': ['Inter', 'sans-serif'],
+          },
+          backgroundImage: {
+            'card-gradient': 'linear-gradient(135deg, #064e3b 0%, #022c22 100%)',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #022c22; }
+    ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+    body { font-family: 'Inter', sans-serif; background: #05130b; }
+    h1, h2, h3, .font-oswald { font-family: 'Oswald', sans-serif; letter-spacing: 0.01em; }
+
+    /* ---- Section fade-in ---- */
+    @keyframes sectionFade {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section-panel { display: none; }
+    .section-panel.active {
+      display: block;
+      animation: sectionFade 0.5s ease forwards;
+    }
+
+    /* ---- Player card hover ---- */
+    .player-card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+    .player-card:hover {
+      transform: translateY(-6px);
+      border-color: #10b981;
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25);
+    }
+    .player-card .player-avatar { transition: transform 0.4s ease; }
+    .player-card:hover .player-avatar { transform: scale(1.08) rotate(1deg); }
+
+    /* ---- Cabinet card hover ---- */
+    .cabinet-card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+    .cabinet-card:hover {
+      transform: translateY(-4px);
+      border-color: #10b981;
+      box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25);
+    }
+
+    /* President card special glow */
+    .president-card {
+      position: relative;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .president-card:hover {
+      transform: translateY(-6px);
+      border-color: #f59e0b;
+      box-shadow: 0 16px 40px rgba(245, 158, 11, 0.3);
+    }
+    .president-card::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #f59e0b, #10b981, #f59e0b);
+      opacity: 0.5;
+      z-index: -1;
+      filter: blur(8px);
+    }
+
+    /* Crown rotation animation */
+    @keyframes crownFloat {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-6px) rotate(5deg); }
+    }
+    .crown-icon { animation: crownFloat 3s ease-in-out infinite; }
+
+    /* ---- Jersey float ---- */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .float-jersey { animation: float 3.5s ease-in-out infinite; }
+
+    /* ---- Nav tabs ---- */
+    .nav-tab { position: relative; transition: all 0.25s ease; }
+    .nav-tab.active {
+      background: linear-gradient(90deg, #064e3b, #10b981);
+      color: white;
+      box-shadow: 0 0 12px #10b98144;
+    }
+    .nav-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background: #f59e0b;
+      border-radius: 2px;
+    }
+
+    .tab-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+    .tab-scroll::-webkit-scrollbar { display: none; }
+
+    /* ============================================
+       FULL-SCREEN BACKGROUND SLIDESHOW
+       ============================================ */
+    .hero-slideshow {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-color: #022c22;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+      transform: scale(1);
+      will-change: opacity, transform;
+    }
+    .slide.active {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+
+    .history-bg-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 35%;
+      transform: translateX(-100%);
+      transition: transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+    .history-bg-slide.active { transform: translateX(0); }
+    .history-bg-slide.exit-right { transform: translateX(100%); }
+    .history-bg-slide.reset-left { transform: translateX(-100%); transition: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .history-bg-slide { transition: none; }
+    }
+
+    @keyframes kenBurns {
+      0%   { transform: scale(1.05); }
+      100% { transform: scale(1.15); }
+    }
+
+    .hero-slideshow::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(2, 44, 34, 0.35) 0%, rgba(5, 19, 11, 0.25) 40%, rgba(5, 19, 11, 0.55) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+    .hero-slideshow::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(5, 19, 11, 0.82) 0%, rgba(5, 19, 11, 0.42) 24%, rgba(5, 19, 11, 0.08) 52%, transparent 90%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .hero-text-overlay { position: relative; z-index: 10; }
+    .hero-text-overlay h1,
+    .hero-text-overlay h2 {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 60px rgba(16, 185, 129, 0.3);
+    }
+    .hero-text-overlay p {
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 4px 16px rgba(0, 0, 0, 0.7);
+    }
+
+    .slide-dots {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 20;
+    }
+    .slide-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .slide-dot.active {
+      background: #10b981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.8);
+      width: 28px;
+      border-radius: 6px;
+    }
+
+    .slide-timer {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      z-index: 20;
+      border-radius: 50%;
+      background: rgba(2, 44, 34, 0.85);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(16, 185, 129, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #10b981;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Oswald', sans-serif;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+
+    @media (max-width: 640px) {
+      .hero-slideshow {
+        min-height: 78svh;
+      }
+      .slide {
+        background-position: center top;
+        background-size: cover;
+      }
+      .hero-slideshow::before {
+        background: linear-gradient(180deg, rgba(2, 44, 34, 0.18) 0%, rgba(5, 19, 11, 0.12) 45%, rgba(5, 19, 11, 0.42) 100%);
+      }
+      .hero-slideshow::after {
+        background: linear-gradient(90deg, rgba(5, 19, 11, 0.58) 0%, rgba(5, 19, 11, 0.18) 48%, transparent 100%);
+      }
+      .hero-title { font-size: 2rem; line-height: 1.15; }
+      .section-heading { font-size: 1.6rem; }
+      .slide-timer { top: 14px; right: 14px; width: 40px; height: 40px; font-size: 12px; }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: linear-gradient(90deg, #064e3b, #10b981);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ============================================
+       MODAL FOR CABINET DETAILS
+       ============================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 44, 34, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.show {
+      display: flex;
+      opacity: 1;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-content {
+      background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      border-radius: 20px;
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 60px rgba(16, 185, 129, 0.15);
+      animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .modal-content::-webkit-scrollbar { width: 6px; }
+    .modal-content::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-night-green text-emerald-100 antialiased min-h-screen flex flex-col">
+
+  <!-- ========== HEADER / NAV ========== -->
+  <header class="sticky top-0 z-50 border-b border-emerald-900/60 bg-deep-green/95 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between py-3">
+        <div class="flex items-center gap-2 sm:gap-3 cursor-pointer" data-action="logo">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-full bg-white overflow-hidden flex items-center justify-center">
+            <img src="logo.png" alt="Abakiki FC logo" class="w-[155%] h-[155%] max-w-none object-contain translate-x-[4%] -translate-y-[2%]">
+          </div>
+          <div>
+            <span class="font-oswald font-bold text-base sm:text-lg tracking-wide text-white">ABAKIKI <span class="text-forest-accent">FC</span></span>
+            <p class="text-[9px] sm:text-[10px] text-emerald-400/70 -mt-0.5 sm:-mt-1">JOVOC LEAGUE · 2023</p>
+          </div>
+        </div>
+
+        <!-- Desktop tabs -->
+        <nav class="hidden md:flex items-center space-x-1 text-sm font-medium">
+          <button data-tab="home" class="nav-tab active px-4 py-2 rounded-md text-emerald-200">Home</button>
+          <button data-tab="history" class="nav-tab px-4 py-2 rounded-md text-emerald-200 hover:bg-emerald-900/40">History</button>
+          <button data-tab="players" class="nav-tab px-4 py-2 rounded-md text-emerald-200 hover:bg-emerald-900/40">Players</button>
+          <button data-tab="cabinet" class="nav-tab px-4 py-2 rounded-md text-emerald-200 hover:bg-emerald-900/40">Cabinet</button>
+          <button data-tab="shop" class="nav-tab px-4 py-2 rounded-md text-emerald-200 hover:bg-emerald-900/40">Shop</button>
+          <button data-tab="sponsoring" class="nav-tab px-4 py-2 rounded-md text-emerald-200 hover:bg-emerald-900/40">Sponsoring</button>
+        </nav>
+
+        <!-- Mobile hamburger -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-md text-emerald-300 hover:text-white hover:bg-emerald-900/50 transition">
+          <svg id="menuIconOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <svg id="menuIconClose" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- ============================================
+           MOBILE TABS — VERTICAL STACKED MENU
+           ============================================ -->
+      <div id="mobileTabs" class="md:hidden hidden pb-3">
+        <div class="flex flex-col gap-1.5 pt-2 border-t border-emerald-800/60">
+          <button data-tab="home" class="nav-tab active w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200">Home</button>
+          <button data-tab="history" class="nav-tab w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200 hover:bg-emerald-900/40">History</button>
+          <button data-tab="players" class="nav-tab w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200 hover:bg-emerald-900/40">Players</button>
+          <button data-tab="cabinet" class="nav-tab w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200 hover:bg-emerald-900/40">Cabinet</button>
+          <button data-tab="shop" class="nav-tab w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200 hover:bg-emerald-900/40">Shop</button>
+          <button data-tab="sponsoring" class="nav-tab w-full text-left px-4 py-3 rounded-md text-sm font-medium text-emerald-200 hover:bg-emerald-900/40">Sponsoring</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main class="flex-1 w-full">
+
+    <!-- ========== HOME PANEL ========== -->
+    <section id="panel-home" class="section-panel active">
+      <div class="hero-slideshow" id="heroSlideshow">
+        <div class="slide active" data-slide="0" style="background-image: url('zhari.jpeg');"></div>
+        <div class="slide" data-slide="1" style="background-image:  url('Gate.jpg');"></div>
+        <div class="slide" data-slide="2" style="background-image:  url('team.jpeg');"></div>
+        <div class="slide" data-slide="3" style="background-image:  url('oscar.jpeg');"></div>
+
+        <div class="hero-text-overlay absolute inset-0 flex items-center justify-center px-4 sm:px-6">
+          <div class="text-center max-w-4xl">
+            <div class="inline-block px-4 py-1.5 rounded-full bg-forest-accent/30 border border-forest-accent/60 text-forest-accent text-xs sm:text-sm font-bold tracking-wider mb-5 backdrop-blur-md">JOVOC LEAGUE · CLASS OF 2023</div>
+            <h1 class="hero-title font-oswald font-bold leading-tight text-white text-4xl sm:text-5xl md:text-7xl lg:text-8xl">FOR NOW <span class="text-forest-accent"> AND </span>FOR THE FUTURE</h1>
+            <p class="text-white text-base sm:text-lg md:text-xl max-w-xl mx-auto mt-5 font-medium">Abakyiki FC a new era in the JOVOC League. Built on passion, powered by our Class of 2023.</p>
+            <div class="flex flex-wrap gap-3 sm:gap-4 justify-center mt-8">
+              <button data-goto="players" class="go-tab px-6 py-3 sm:px-8 sm:py-4 rounded-lg bg-gradient-to-r from-forest-accent to-primary-dark text-white font-bold text-sm sm:text-base shadow-2xl shadow-emerald-900/60 hover:shadow-emerald-500/40 hover:scale-[1.03] transition-all">Meet the Squad</button>
+              <button data-goto="shop" class="go-tab px-6 py-3 sm:px-8 sm:py-4 rounded-lg border-2 border-forest-accent text-forest-accent font-bold text-sm sm:text-base hover:bg-forest-accent/20 backdrop-blur-md transition-all">Shop Jerseys</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-timer" id="slideTimer"><span id="timerCount">4</span></div>
+
+        <div class="slide-dots" id="slideDots">
+          <button class="slide-dot active" data-dot="0" aria-label="Slide 1"></button>
+          <button class="slide-dot" data-dot="1" aria-label="Slide 2"></button>
+          <button class="slide-dot" data-dot="2" aria-label="Slide 3"></button>
+          <button class="slide-dot" data-dot="3" aria-label="Slide 4"></button>
+        </div>
+
+        <div class="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20 hidden sm:block">
+          <div class="w-6 h-10 rounded-full border-2 border-forest-accent/70 flex justify-center pt-2 bg-black/30 backdrop-blur-sm">
+            <div class="w-1 h-2 rounded-full bg-forest-accent animate-bounce"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-10 sm:space-y-14">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div class="text-center p-4 sm:p-5 rounded-xl bg-deep-green/60 border border-emerald-800/60 hover:border-forest-accent/50 transition cursor-pointer" data-action="stat-season">
+            <span class="font-oswald text-2xl sm:text-3xl text-gold-accent">6th</span>
+            <p class="text-[10px] sm:text-xs text-emerald-400/70 mt-1 uppercase tracking-wider">Season</p>
+          </div>
+          <div class="text-center p-4 sm:p-5 rounded-xl bg-deep-green/60 border border-emerald-800/60 hover:border-forest-accent/50 transition cursor-pointer" data-action="stat-squad">
+            <span class="font-oswald text-2xl sm:text-3xl text-gold-accent">207</span>
+            <p class="text-[10px] sm:text-xs text-emerald-400/70 mt-1 uppercase tracking-wider">Squad</p>
+          </div>
+          <div class="text-center p-4 sm:p-5 rounded-xl bg-deep-green/60 border border-emerald-800/60 hover:border-forest-accent/50 transition cursor-pointer" data-action="stat-points">
+            <span class="font-oswald text-2xl sm:text-3xl text-gold-accent">13</span>
+            <p class="text-[10px] sm:text-xs text-emerald-400/70 mt-1 uppercase tracking-wider">Points</p>
+          </div>
+          <div class="text-center p-4 sm:p-5 rounded-xl bg-deep-green/60 border border-emerald-800/60 hover:border-forest-accent/50 transition cursor-pointer" data-action="stat-ambition">
+            <span class="font-oswald text-2xl sm:text-3xl text-gold-accent">∞</span>
+            <p class="text-[10px] sm:text-xs text-emerald-400/70 mt-1 uppercase tracking-wider">Ambition</p>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <span class="w-2 h-8 bg-forest-accent rounded-full"></span>
+              <h2 class="font-oswald text-2xl sm:text-3xl md:text-4xl text-white">FEATURED PLAYERS</h2>
+            </div>
+            <button data-goto="players" class="go-tab text-forest-accent hover:text-gold-accent text-sm font-semibold transition">View all →</button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-k-mwangi">
+              <div class="h-36 sm:h-44 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+                <img src="elius.jpeg" alt="K. Mwangi" class="absolute inset-0 w-full h-full object-cover object-top">
+              </div>
+              <div class="p-3 sm:p-4">
+                <h3 class="font-oswald text-base sm:text-lg text-white">K. Mwangi</h3>
+                <p class="text-forest-accent text-xs sm:text-sm">Forward · #10</p>
+              </div>
+            </div>
+            <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-j-okafor">
+              <div class="h-36 sm:h-44 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+                <img src="elius.jpeg" alt="J. Okafor" class="absolute inset-0 w-full h-full object-cover object-top">
+              </div>
+              <div class="p-3 sm:p-4">
+                <h3 class="font-oswald text-base sm:text-lg text-white">J. Okafor</h3>
+                <p class="text-forest-accent text-xs sm:text-sm">Midfielder · #7</p>
+              </div>
+            </div>
+            <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-l-ndlovu">
+              <div class="h-36 sm:h-44 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+                <img src="elius.jpeg" alt="L. Ndlovu" class="absolute inset-0 w-full h-full object-cover object-top">
+              </div>
+              <div class="p-3 sm:p-4">
+                <h3 class="font-oswald text-base sm:text-lg text-white">L. Ndlovu</h3>
+                <p class="text-forest-accent text-xs sm:text-sm">Defender · #4</p>
+              </div>
+            </div>
+            <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-s-diarra">
+              <div class="h-36 sm:h-44 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+                <img src="elius.jpeg" alt="S. Diarra" class="absolute inset-0 w-full h-full object-cover object-top">
+              </div>
+              <div class="p-3 sm:p-4">
+                <h3 class="font-oswald text-base sm:text-lg text-white">S. Diarra</h3>
+                <p class="text-forest-accent text-xs sm:text-sm">Goalkeeper · #1</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="relative rounded-2xl overflow-hidden border border-emerald-800/60 bg-gradient-to-r from-primary-dark via-deep-green to-night-green p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(245,158,11,0.1),transparent_60%)]"></div>
+          <div class="relative z-10 text-center md:text-left">
+            <h3 class="font-oswald text-2xl sm:text-3xl text-white">WEAR THE <span class="text-gold-accent">GREEN & GOLD</span></h3>
+            <p class="text-emerald-300/70 text-sm sm:text-base mt-2 max-w-md">Official Class of 2023 jerseys now available. Free shipping on orders over UGX 100,000.</p>
+          </div>
+          <button data-goto="shop" class="go-tab relative z-10 px-6 py-3 rounded-lg bg-gradient-to-r from-gold-accent to-amber-600 text-night-green font-bold text-sm sm:text-base shadow-lg shadow-amber-900/40 hover:scale-[1.03] transition-all whitespace-nowrap">Shop Now →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HISTORY PANEL ========== -->
+    <section id="panel-history" class="section-panel">
+      <div id="historyOverview" class="relative isolate flex min-h-[calc(100svh-5rem)] sm:min-h-[calc(100svh-5.5rem)] items-end sm:items-center overflow-hidden">
+        <img src="team.jpeg" alt="" aria-hidden="true" class="history-bg-slide active">
+        <img src="Gate.jpg" alt="" aria-hidden="true" class="history-bg-slide">
+        <img src="oscar.jpeg" alt="" aria-hidden="true" class="history-bg-slide">
+        <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-night-green/95 via-night-green/70 to-transparent pointer-events-none"></div>
+
+        <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+          <div class="max-w-3xl space-y-5 sm:space-y-6">
+            <p class="text-gold-accent text-xs sm:text-sm font-bold tracking-wider">OUR HISTORY · JOVOC LEAGUE · CLASS OF 2023</p>
+            <h2 class="section-heading font-oswald text-4xl sm:text-6xl lg:text-7xl leading-tight text-white">FROM ST JOSEPH'S TO ABAKIKI</h2>
+            <p class="text-emerald-100/90 text-sm sm:text-base lg:text-lg leading-relaxed max-w-2xl">Founded in 2023, Abakiki FC carried its school roots into the JOVOC League with a vision to play fearless, fluid football and represent our community with pride.</p>
+            <p class="text-emerald-100/80 text-sm sm:text-base leading-relaxed max-w-2xl">From early training sessions to a shared dream of lifting the league trophy, the Class of 2023 is a brotherhood built on growth, grit, and the beautiful game.</p>
+            <button data-action="read-more-history" class="mt-2 px-5 py-2.5 border-2 border-gold-accent/70 text-gold-accent font-semibold text-sm hover:bg-gold-accent/10 transition-colors">Read Full Story →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="historyStoryView" class="hidden max-w-5xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <button data-action="history-story-back" class="inline-flex items-center gap-2 text-forest-accent hover:text-gold-accent font-semibold text-sm transition-colors">
+          <span aria-hidden="true" class="text-xl leading-none">←</span>
+          <span>Back to History</span>
+        </button>
+
+        <article class="mt-6 sm:mt-8">
+          <header class="pb-6 border-b border-emerald-800/70">
+            <p class="text-gold-accent text-xs sm:text-sm font-bold tracking-wider">OUR STORY · 2017-2023</p>
+            <h2 class="section-heading font-oswald text-3xl sm:text-4xl md:text-5xl text-white mt-2">From St Joseph's to Abakiki</h2>
+            <p class="text-emerald-200/80 text-sm sm:text-base leading-relaxed max-w-3xl mt-4">The Abakiki story grew from school roots into a shared football ambition, finding its next chapter in the JOVOC League and the Class of 2023.</p>
+          </header>
+
+          <div class="mt-7 sm:mt-9 ml-2 border-l border-emerald-700/70 space-y-7 sm:space-y-9">
+            <section class="relative pl-6 sm:pl-8">
+              <span class="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-gold-accent"></span>
+              <p class="text-gold-accent text-xs font-bold tracking-wider">2017-2019</p>
+              <h3 class="font-oswald text-xl sm:text-2xl text-white mt-1">St Joseph's School</h3>
+              <p class="text-emerald-300/75 text-sm sm:text-base leading-relaxed mt-2">St Joseph's is where this story begins. School life brought people together, building friendships, discipline, and a sense of community that would become the foundation for a shared love of football.</p>
+            </section>
+
+            <section class="relative pl-6 sm:pl-8">
+              <span class="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-forest-accent"></span>
+              <p class="text-gold-accent text-xs font-bold tracking-wider">2020-2022</p>
+              <h3 class="font-oswald text-xl sm:text-2xl text-white mt-1">A wider football ambition</h3>
+              <p class="text-emerald-300/75 text-sm sm:text-base leading-relaxed mt-2">The connections formed at school carried beyond the classroom. A growing ambition to play, compete, and represent the community set the stage for a club identity and a place in organized league football.</p>
+            </section>
+
+            <section class="relative pl-6 sm:pl-8">
+              <span class="absolute -left-[7px] top-1 w-3 h-3 rounded-full bg-gold-accent"></span>
+              <p class="text-gold-accent text-xs font-bold tracking-wider">2023</p>
+              <h3 class="font-oswald text-xl sm:text-2xl text-white mt-1">Abakiki and the JOVOC League</h3>
+              <p class="text-emerald-300/75 text-sm sm:text-base leading-relaxed mt-2">Abakiki FC became part of the JOVOC League's inaugural Class of 2023. The team carried its school roots into a new chapter, representing its community with pride and building a future together on and off the pitch.</p>
+            </section>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========== PLAYERS PANEL ========== -->
+    <section id="panel-players" class="section-panel">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-8 bg-forest-accent rounded-full"></span>
+            <h2 class="section-heading font-oswald text-2xl sm:text-3xl md:text-4xl text-white">CLASS OF 2023</h2>
+          </div>
+          <span class="text-[10px] sm:text-xs text-emerald-400/60 bg-emerald-900/40 px-3 py-1 rounded-full border border-emerald-800 self-start sm:self-auto">Meet the squad</span>
+        </div>
+
+        <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-k-mwangi">
+            <div class="h-40 sm:h-48 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+              <img src="elius.jpeg" alt="K. Mwangi" class="absolute inset-0 w-full h-full object-cover object-top">
+              <div class="absolute top-2 sm:top-3 right-2 sm:right-3 bg-gold-accent/20 text-gold-accent text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-gold-accent/40">CLASS 2023</div>
+            </div>
+            <div class="p-3 sm:p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-oswald text-lg sm:text-xl text-white">K. Mwangi</h3>
+                  <p class="text-forest-accent text-xs sm:text-sm font-medium">Forward</p>
+                </div>
+                <span class="bg-emerald-900/80 text-forest-accent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-bold">10</span>
+              </div>
+              <div class="flex justify-between text-[10px] sm:text-xs text-emerald-300/70 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-emerald-800/60"><span>⚽ 8 Goals</span><span>🅰 3 Assists</span></div>
+            </div>
+          </div>
+
+          <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-j-okafor">
+            <div class="h-40 sm:h-48 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+              <img src="elius.jpeg" alt="J. Okafor" class="absolute inset-0 w-full h-full object-cover object-top">
+              <div class="absolute top-2 sm:top-3 right-2 sm:right-3 bg-gold-accent/20 text-gold-accent text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-gold-accent/40">CLASS 2023</div>
+            </div>
+            <div class="p-3 sm:p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-oswald text-lg sm:text-xl text-white">J. Okafor</h3>
+                  <p class="text-forest-accent text-xs sm:text-sm font-medium">Midfielder</p>
+                </div>
+                <span class="bg-emerald-900/80 text-forest-accent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-bold">7</span>
+              </div>
+              <div class="flex justify-between text-[10px] sm:text-xs text-emerald-300/70 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-emerald-800/60"><span>⚽ 4 Goals</span><span>🅰 6 Assists</span></div>
+            </div>
+          </div>
+
+          <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-l-ndlovu">
+            <div class="h-40 sm:h-48 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+              <img src="elius.jpeg" alt="L. Ndlovu" class="absolute inset-0 w-full h-full object-cover object-top">
+              <div class="absolute top-2 sm:top-3 right-2 sm:right-3 bg-gold-accent/20 text-gold-accent text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-gold-accent/40">CLASS 2023</div>
+            </div>
+            <div class="p-3 sm:p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-oswald text-lg sm:text-xl text-white">L. Ndlovu</h3>
+                  <p class="text-forest-accent text-xs sm:text-sm font-medium">Defender</p>
+                </div>
+                <span class="bg-emerald-900/80 text-forest-accent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-bold">4</span>
+              </div>
+              <div class="flex justify-between text-[10px] sm:text-xs text-emerald-300/70 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-emerald-800/60"><span>🛡 12 Tackles</span><span>📋 5 Clean Sheets</span></div>
+            </div>
+          </div>
+
+          <div class="player-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden cursor-pointer" data-action="player-s-diarra">
+            <div class="h-40 sm:h-48 bg-gradient-to-br from-primary-dark to-night-green flex items-center justify-center relative overflow-hidden">
+              <img src="elius.jpeg" alt="S. Diarra" class="absolute inset-0 w-full h-full object-cover object-top">
+              <div class="absolute top-2 sm:top-3 right-2 sm:right-3 bg-gold-accent/20 text-gold-accent text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-gold-accent/40">CLASS 2023</div>
+            </div>
+            <div class="p-3 sm:p-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="font-oswald text-lg sm:text-xl text-white">S. Diarra</h3>
+                  <p class="text-forest-accent text-xs sm:text-sm font-medium">Goalkeeper</p>
+                </div>
+                <span class="bg-emerald-900/80 text-forest-accent px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm font-bold">1</span>
+              </div>
+              <div class="flex justify-between text-[10px] sm:text-xs text-emerald-300/70 mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-emerald-800/60"><span>🧤 28 Saves</span><span>📋 4 Clean Sheets</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center pt-2">
+          <button data-action="view-full-squad" class="px-6 py-2.5 rounded-lg border-2 border-forest-accent/60 text-forest-accent font-semibold text-sm hover:bg-forest-accent/10 transition-all">View Full Squad →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================
+         CABINET PANEL — Large rectangular images
+         ============================================ -->
+    <section id="panel-cabinet" class="section-panel">
+      <div id="cabinetOverview" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-14">
+
+        <!-- Header -->
+        <div class="text-center">
+          <div class="inline-block px-4 py-1.5 rounded-full bg-gold-accent/20 border border-gold-accent/50 text-gold-accent text-xs sm:text-sm font-bold tracking-wider mb-4 backdrop-blur-sm">LEADERSHIP · CLASS OF 2023</div>
+          <h2 class="section-heading font-oswald text-3xl sm:text-4xl md:text-5xl text-white">THE CLUB CABINET</h2>
+          <p class="text-emerald-300/70 text-sm sm:text-base max-w-2xl mx-auto mt-3">Meet the visionaries guiding Abakiki FC — the leadership team driving our journey in the JOVOC League.</p>
+        </div>
+
+        <!-- ============================================
+             PRESIDENT — LARGE RECTANGULAR IMAGE
+             ============================================ -->
+        <div class="flex justify-center">
+          <div class="president-card bg-card-gradient rounded-2xl border-2 border-gold-accent/60 overflow-hidden max-w-lg w-full">
+            <!-- Crown badge -->
+            <div class="absolute top-4 left-1/2 -translate-x-1/2 z-20 crown-icon">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold-accent to-amber-600 flex items-center justify-center shadow-lg shadow-amber-900/50 border-2 border-white/20">
+                <span class="text-2xl">👑</span>
+              </div>
+            </div>
+
+            <!-- Large rectangular President image -->
+            <div class="h-80 sm:h-96 relative overflow-hidden bg-deep-green">
+              <img
+                src="elius.jpeg"
+                alt="Club President"
+                class="w-full h-full object-cover object-[center_top]"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+              />
+              <div class="hidden w-full h-full bg-gradient-to-br from-gold-accent/30 to-emerald-900 items-center justify-center">
+                <span class="text-8xl font-oswald text-white/90">P</span>
+              </div>
+              <!-- Gradient bottom for text -->
+              <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-deep-green via-deep-green/80 to-transparent"></div>
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 bg-gold-accent/95 text-night-green px-5 py-2 rounded-full text-xs font-bold tracking-wider shadow-lg">
+                PRESIDENT
+              </div>
+            </div>
+
+            <div class="p-6 text-center">
+              <h3 class="font-oswald text-2xl sm:text-3xl text-white">Jonathan A. Mwangi</h3>
+              <p class="text-gold-accent text-sm sm:text-base font-semibold mt-1">Club President & Founder</p>
+              <p class="text-emerald-300/70 text-xs sm:text-sm mt-3 leading-relaxed">Visionary leader who founded Abakiki FC and drives the club's strategic direction in the JOVOC League.</p>
+
+              <div class="flex justify-center gap-3 mt-5">
+                <button data-action="cabinet-president-message" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-gold-accent to-amber-600 text-night-green font-bold text-xs hover:scale-[1.03] transition-all">Message</button>
+                <button data-cabinet="president" class="view-details-btn px-5 py-2.5 rounded-lg border-2 border-gold-accent/60 text-gold-accent font-semibold text-xs hover:bg-gold-accent/10 transition-all">View Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================
+             OTHER CABINET POSITIONS
+             ============================================ -->
+        <div>
+          <div class="flex items-center gap-3 mb-6">
+            <span class="w-2 h-7 bg-forest-accent rounded-full"></span>
+            <h3 class="font-oswald text-xl sm:text-2xl text-white">EXECUTIVE COMMITTEE</h3>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+
+            <!-- Vice President -->
+            <div class="cabinet-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden">
+              <div class="h-56 relative overflow-hidden bg-deep-green">
+                <img
+                  src="elius.jpeg"
+                  alt="Vice President"
+                  class="w-full h-full object-cover object-[center_top]"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="hidden w-full h-full bg-gradient-to-br from-forest-accent/40 to-emerald-900 items-center justify-center">
+                  <span class="text-5xl font-oswald text-white/90">VP</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-deep-green via-deep-green/70 to-transparent"></div>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-forest-accent/95 text-night-green px-3 py-1 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap">VICE PRESIDENT</div>
+              </div>
+              <div class="p-4 text-center">
+                <h4 class="font-oswald text-lg text-white">Grace Wanjiku</h4>
+                <p class="text-forest-accent text-xs font-medium mt-0.5">Vice President</p>
+                <button data-cabinet="vp" class="view-details-btn mt-3 w-full py-2 rounded-lg border border-forest-accent/50 text-forest-accent text-xs font-semibold hover:bg-forest-accent/10 transition-all">View Details</button>
+              </div>
+            </div>
+
+            <!-- Secretary General -->
+            <div class="cabinet-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden">
+              <div class="h-56 relative overflow-hidden bg-deep-green">
+                <img
+                  src="elius.jpeg"
+                  alt="Secretary General"
+                  class="w-full h-full object-cover object-[center_top]"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="hidden w-full h-full bg-gradient-to-br from-forest-accent/40 to-emerald-900 items-center justify-center">
+                  <span class="text-5xl font-oswald text-white/90">SG</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-deep-green via-deep-green/70 to-transparent"></div>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-forest-accent/95 text-night-green px-3 py-1 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap">SECRETARY</div>
+              </div>
+              <div class="p-4 text-center">
+                <h4 class="font-oswald text-lg text-white">David Otieno</h4>
+                <p class="text-forest-accent text-xs font-medium mt-0.5">Secretary General</p>
+                <button data-cabinet="sg" class="view-details-btn mt-3 w-full py-2 rounded-lg border border-forest-accent/50 text-forest-accent text-xs font-semibold hover:bg-forest-accent/10 transition-all">View Details</button>
+              </div>
+            </div>
+
+            <!-- Treasurer -->
+            <div class="cabinet-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden">
+              <div class="h-56 relative overflow-hidden bg-deep-green">
+                <img
+                  src="elius.jpeg"
+                  alt="Treasurer"
+                  class="w-full h-full object-cover object-[center_top]"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="hidden w-full h-full bg-gradient-to-br from-forest-accent/40 to-emerald-900 items-center justify-center">
+                  <span class="text-5xl font-oswald text-white/90">TR</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-deep-green via-deep-green/70 to-transparent"></div>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-forest-accent/95 text-night-green px-3 py-1 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap">TREASURER</div>
+              </div>
+              <div class="p-4 text-center">
+                <h4 class="font-oswald text-lg text-white">Amina Hassan</h4>
+                <p class="text-forest-accent text-xs font-medium mt-0.5">Treasurer</p>
+                <button data-cabinet="treasurer" class="view-details-btn mt-3 w-full py-2 rounded-lg border border-forest-accent/50 text-forest-accent text-xs font-semibold hover:bg-forest-accent/10 transition-all">View Details</button>
+              </div>
+            </div>
+
+            <!-- Team Manager -->
+            <div class="cabinet-card bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden">
+              <div class="h-56 relative overflow-hidden bg-deep-green">
+                <img
+                  src="elius.jpeg"
+                  alt="Team Manager"
+                  class="w-full h-full object-cover object-[center_top]"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="hidden w-full h-full bg-gradient-to-br from-forest-accent/40 to-emerald-900 items-center justify-center">
+                  <span class="text-5xl font-oswald text-white/90">TM</span>
+                </div>
+                <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-deep-green via-deep-green/70 to-transparent"></div>
+                <div class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-forest-accent/95 text-night-green px-3 py-1 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap">TEAM MANAGER</div>
+              </div>
+              <div class="p-4 text-center">
+                <h4 class="font-oswald text-lg text-white">Peter Kamau</h4>
+                <p class="text-forest-accent text-xs font-medium mt-0.5">Team Manager</p>
+                <button data-cabinet="manager" class="view-details-btn mt-3 w-full py-2 rounded-lg border border-forest-accent/50 text-forest-accent text-xs font-semibold hover:bg-forest-accent/10 transition-all">View Details</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Cabinet message banner -->
+        <div class="rounded-2xl bg-gradient-to-r from-primary-dark via-deep-green to-night-green border border-gold-accent/30 p-6 sm:p-8 text-center relative overflow-hidden">
+          <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(245,158,11,0.08),transparent_70%)]"></div>
+          <div class="relative z-10 max-w-2xl mx-auto">
+            <span class="text-4xl font-oswald text-gold-accent/40">"</span>
+            <p class="text-lg sm:text-xl font-oswald text-white/95 leading-relaxed -mt-3">Our cabinet is united by one purpose — to build a club that our community can be proud of, on and off the pitch.</p>
+            <p class="text-gold-accent text-xs sm:text-sm mt-4 tracking-wider font-semibold">— THE ABAKIKI FC CABINET · CLASS OF 2023</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="presidentMessageView" class="hidden max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <button data-action="president-message-back" class="inline-flex items-center gap-2 text-forest-accent hover:text-gold-accent font-semibold text-sm transition-colors">
+          <span aria-hidden="true" class="text-xl leading-none">←</span>
+          <span>Back to Cabinet</span>
+        </button>
+
+        <article class="mt-6 rounded-xl border border-gold-accent/40 bg-card-gradient overflow-hidden">
+          <header class="px-6 py-6 sm:px-10 sm:py-8 border-b border-emerald-800/60">
+            <p class="text-gold-accent text-xs font-bold tracking-wider">A MESSAGE FROM OUR PRESIDENT</p>
+            <h2 class="font-oswald text-2xl sm:text-3xl text-white mt-2">Together, We Build Abakiki</h2>
+          </header>
+          <div class="p-6 sm:p-10 text-emerald-200/85 text-sm sm:text-base leading-relaxed space-y-4">
+            <p>To our players, supporters, and the Abakiki community,</p>
+            <p>Thank you for believing in this club and for standing with us since the beginning. What we have built since 2023 reflects the commitment, courage, and unity of everyone who wears our colors and everyone who cheers us on.</p>
+            <p>As we continue our journey in the JOVOC League, let us keep representing our community with discipline, respect, and pride. There is more ahead of us, and we will meet it together.</p>
+            <p>Thank you for being part of the journey.</p>
+            <div class="pt-3">
+              <p class="font-oswald text-xl text-white">Jonathan A. Mwangi</p>
+              <p class="text-gold-accent text-xs sm:text-sm font-semibold mt-1">Club President &amp; Founder</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========== SHOP PANEL ========== -->
+    <section id="panel-shop" class="section-panel">
+      <div id="shopOverview" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-6 sm:space-y-8">
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-8 bg-gold-accent rounded-full"></span>
+          <h2 class="section-heading font-oswald text-2xl sm:text-3xl md:text-4xl text-white">JERSEY SHOP</h2>
+          <span class="text-[10px] sm:text-xs text-gold-accent bg-gold-accent/10 px-2 sm:px-3 py-1 rounded-full border border-gold-accent/30">OFFICIAL MERCH</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+          <div class="bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden p-4 sm:p-5 flex flex-col items-center text-center hover:border-forest-accent/60 transition-all duration-300 group">
+            <div class="w-36 sm:w-40 h-44 sm:h-48 relative float-jersey overflow-hidden">
+              <img src="jersey.webp" alt="Home Kit 2023" class="absolute inset-0 w-full h-full object-cover object-[center_35%]">
+              <div class="absolute inset-0 bg-gradient-to-t from-emerald-900/80 to-transparent"></div>
+              <span class="absolute bottom-3 inset-x-0 text-center text-[9px] sm:text-[10px] text-gold-accent font-bold z-10">2023</span>
+            </div>
+            <h3 class="font-oswald text-lg sm:text-xl text-white mt-4">Home Kit 2023</h3>
+            <p class="text-emerald-300/70 text-xs sm:text-sm">Dark green & gold · Class of 2023</p>
+            <div class="flex items-center gap-2 mt-2"><span class="text-gold-accent font-bold text-base sm:text-lg">UGX 60,000</span></div>
+            <button type="button" data-cart-product="home-kit" class="mt-3 sm:mt-4 w-full py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-forest-accent to-primary-dark text-white font-semibold text-xs sm:text-sm tracking-wide hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all">Add to Cart</button>
+          </div>
+
+          <div class="bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden p-4 sm:p-5 flex flex-col items-center text-center hover:border-forest-accent/60 transition-all duration-300 group">
+            <div class="w-36 sm:w-40 h-44 sm:h-48 relative float-jersey overflow-hidden" style="animation-delay: 0.8s;">
+              <img src="jersey.webp" alt="Away Kit 2023" class="absolute inset-0 w-full h-full object-cover object-[center_35%]">
+              <div class="absolute inset-0 bg-gradient-to-t from-night-green/80 to-transparent"></div>
+              <span class="absolute inset-0 z-10 flex items-center justify-center font-oswald text-2xl sm:text-3xl text-white">AFC</span>
+              <span class="absolute bottom-3 inset-x-0 z-10 text-center text-[9px] sm:text-[10px] text-gold-accent font-bold">AWAY</span>
+            </div>
+            <h3 class="font-oswald text-lg sm:text-xl text-white mt-4">Away Kit 2023</h3>
+            <p class="text-emerald-300/70 text-xs sm:text-sm">Night green & gold · Limited</p>
+            <div class="flex items-center gap-2 mt-2"><span class="text-gold-accent font-bold text-base sm:text-lg">UGX 58,000</span></div>
+            <button type="button" data-cart-product="away-kit" class="mt-3 sm:mt-4 w-full py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-forest-accent to-primary-dark text-white font-semibold text-xs sm:text-sm tracking-wide hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all">Add to Cart</button>
+          </div>
+
+          <div class="bg-card-gradient rounded-xl border border-emerald-800/70 overflow-hidden p-4 sm:p-5 flex flex-col items-center text-center hover:border-forest-accent/60 transition-all duration-300 group sm:col-span-2 lg:col-span-1">
+            <div class="w-36 sm:w-40 h-44 sm:h-48 relative float-jersey overflow-hidden" style="animation-delay: 1.6s;">
+              <img src="jersey.webp" alt="Goalkeeper Kit" class="absolute inset-0 w-full h-full object-cover object-[center_35%]">
+              <div class="absolute inset-0 bg-gradient-to-t from-night-green/80 to-transparent"></div>
+              <span class="absolute inset-0 z-10 flex items-center justify-center font-oswald text-2xl sm:text-3xl text-white">GK</span>
+              <span class="absolute bottom-3 inset-x-0 z-10 text-center text-[9px] sm:text-[10px] text-gold-accent font-bold">1</span>
+            </div>
+            <h3 class="font-oswald text-lg sm:text-xl text-white mt-4">Goalkeeper Kit</h3>
+            <p class="text-emerald-300/70 text-xs sm:text-sm">Deep green with high-contrast gold</p>
+            <div class="flex items-center gap-2 mt-2"><span class="text-gold-accent font-bold text-base sm:text-lg">UGX 60,000</span></div>
+            <button type="button" data-cart-product="goalkeeper-kit" class="mt-3 sm:mt-4 w-full py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-forest-accent to-primary-dark text-white font-semibold text-xs sm:text-sm tracking-wide hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all">Add to Cart</button>
+          </div>
+        </div>
+
+        <div class="rounded-xl bg-deep-green/60 border border-emerald-800/60 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <div>
+            <p class="text-white font-oswald text-base sm:text-lg">Free shipping on orders over UGX 100,000</p>
+            <p class="text-emerald-300/60 text-xs sm:text-sm">All jerseys include Class of 2023 commemorative packaging.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button data-action="open-cart" class="px-4 py-2 rounded-lg border border-forest-accent/50 text-forest-accent font-semibold text-xs sm:text-sm hover:bg-forest-accent/10 transition-all whitespace-nowrap">Cart (<span class="cart-count">0</span>)</button>
+            <button data-action="view-all-merch" class="px-5 py-2 rounded-lg border-2 border-gold-accent/60 text-gold-accent font-semibold text-xs sm:text-sm hover:bg-gold-accent/10 transition-all whitespace-nowrap">View All Merch</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="merchCatalogView" class="hidden max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <button data-action="merch-catalog-back" class="inline-flex items-center gap-2 text-forest-accent hover:text-gold-accent font-semibold text-sm transition-colors">
+          <span aria-hidden="true" class="text-xl leading-none">←</span>
+          <span>Back to Shop</span>
+        </button>
+        <div class="mt-6 sm:mt-8 mb-6 sm:mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="text-gold-accent text-xs sm:text-sm font-bold tracking-wider">OFFICIAL ABAKIKI FC MERCHANDISE</p>
+            <h2 class="section-heading font-oswald text-3xl sm:text-4xl text-white mt-2">ALL MERCH</h2>
+          </div>
+          <button data-action="open-cart" class="px-4 py-2 rounded-lg border border-forest-accent/50 text-forest-accent font-semibold text-sm hover:bg-forest-accent/10 transition-all">Cart (<span class="cart-count">0</span>)</button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Home match jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Home Match Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Class of 2023 · Green</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 60,000</p><button type="button" data-cart-product="home-kit" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Away match jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Away Match Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Class of 2023 · Gold</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 58,000</p><button type="button" data-cart-product="away-kit" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Goalkeeper jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Goalkeeper Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Match kit · Green</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 60,000</p><button type="button" data-cart-product="goalkeeper-kit" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Training jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Training Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Training wear · Green</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 35,000</p><button type="button" data-cart-product="training-jersey" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Youth home jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Youth Home Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Junior sizes · Green</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 40,000</p><button type="button" data-cart-product="youth-home" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Youth away jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Youth Away Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Junior sizes · Gold</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 40,000</p><button type="button" data-cart-product="youth-away" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Long sleeve jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Long Sleeve Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Supporter edition</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 55,000</p><button type="button" data-cart-product="long-sleeve" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Classic supporter jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Classic Supporter Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Everyday fan wear</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 45,000</p><button type="button" data-cart-product="supporter" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Class of 2023 commemorative jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Commemorative Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Class of 2023 edition</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 60,000</p><button type="button" data-cart-product="commemorative" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+          <article class="rounded-lg border border-emerald-800/70 bg-card-gradient overflow-hidden">
+            <div class="aspect-[2/3] bg-deep-green/70 overflow-hidden"><img src="jersey.webp" alt="Limited edition club jersey" class="w-full h-full object-cover"></div>
+            <div class="p-3 sm:p-4"><h3 class="font-oswald text-base sm:text-lg text-white">Limited Edition Jersey</h3><p class="text-emerald-300/70 text-xs sm:text-sm mt-1">Green &amp; gold collection</p><p class="text-gold-accent font-bold text-sm mt-2">UGX 60,000</p><button type="button" data-cart-product="limited-edition" class="mt-3 w-full rounded-md bg-forest-accent py-2 text-xs sm:text-sm font-bold text-night-green hover:bg-gold-accent transition-colors">Add to Cart</button></div>
+          </article>
+        </div>
+      </div>
+
+      <div id="cartPageView" class="hidden max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <button data-action="cart-back" class="inline-flex items-center gap-2 text-forest-accent hover:text-gold-accent font-semibold text-sm transition-colors">
+          <span aria-hidden="true" class="text-xl leading-none">←</span>
+          <span>Back to Merch</span>
+        </button>
+        <div class="mt-6 sm:mt-8">
+          <p class="text-gold-accent text-xs sm:text-sm font-bold tracking-wider">ORDER RESERVATION</p>
+          <h2 class="section-heading font-oswald text-3xl sm:text-4xl text-white mt-2">YOUR CART</h2>
+        </div>
+
+        <form id="cartCheckoutForm" class="mt-6 sm:mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 lg:gap-8">
+          <div id="cartItems" class="space-y-3" aria-live="polite"></div>
+          <aside class="h-fit rounded-lg border border-emerald-800/70 bg-card-gradient p-4 sm:p-5">
+            <h3 class="font-oswald text-xl text-white">Reservation details</h3>
+            <label for="cartCustomerName" class="block text-sm font-medium text-emerald-100 mt-4 mb-1.5">Your name *</label>
+            <input id="cartCustomerName" name="customerName" type="text" required autocomplete="name" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="Full name">
+            <label for="cartCustomerPhone" class="block text-sm font-medium text-emerald-100 mt-4 mb-1.5">Phone number *</label>
+            <input id="cartCustomerPhone" name="customerPhone" type="tel" required autocomplete="tel" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="Contact number">
+            <div class="mt-5 pt-4 border-t border-emerald-800/70 flex items-center justify-between">
+              <span class="text-emerald-200/80 text-sm">Total</span>
+              <strong id="cartTotal" class="font-oswald text-2xl text-gold-accent">UGX 0</strong>
+            </div>
+            <p id="cartQuantitySummary" class="text-emerald-400/70 text-xs mt-1">0 items</p>
+            <button id="cartSubmitButton" type="submit" disabled class="mt-5 w-full rounded-md bg-forest-accent py-3 px-4 text-sm font-bold text-night-green hover:bg-gold-accent transition-colors disabled:opacity-40 disabled:cursor-not-allowed">Send Reservation on WhatsApp</button>
+            <p class="text-emerald-400/60 text-xs leading-relaxed mt-3">Your order opens as a WhatsApp message for confirmation.</p>
+          </aside>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== SPONSORING PANEL ========== -->
+    <section id="panel-sponsoring" class="section-panel">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div class="max-w-3xl mx-auto">
+          <div class="mb-7 sm:mb-9">
+            <p class="text-gold-accent text-xs sm:text-sm font-bold tracking-wider">SUPPORT THE CLASS OF 2023</p>
+            <h2 class="section-heading font-oswald text-3xl sm:text-4xl md:text-5xl text-white mt-2">SPONSOR ABAKIKI FC</h2>
+            <p class="text-emerald-300/70 text-sm sm:text-base mt-3">Tell us how you would like to support the team.</p>
+          </div>
+
+          <form id="sponsorshipForm" class="rounded-xl border border-emerald-800/70 bg-card-gradient p-4 sm:p-8 space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="sponsorName" class="block text-sm font-medium text-emerald-100 mb-1.5">Full name *</label>
+                <input id="sponsorName" name="name" type="text" required autocomplete="name" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="Your name">
+              </div>
+              <div>
+                <label for="sponsorPhone" class="block text-sm font-medium text-emerald-100 mb-1.5">Phone number *</label>
+                <input id="sponsorPhone" name="phone" type="tel" required autocomplete="tel" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="Your contact number">
+              </div>
+              <div>
+                <label for="sponsorEmail" class="block text-sm font-medium text-emerald-100 mb-1.5">Email</label>
+                <input id="sponsorEmail" name="email" type="email" autocomplete="email" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="you@example.com">
+              </div>
+              <div>
+                <label for="sponsorType" class="block text-sm font-medium text-emerald-100 mb-1.5">Sponsorship type *</label>
+                <select id="sponsorType" name="sponsorshipType" required class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white focus:border-forest-accent focus:outline-none">
+                  <option value="" disabled selected>Select support type</option>
+                  <option>Financial contribution</option>
+                  <option>Team kits and equipment</option>
+                  <option>Travel and logistics</option>
+                  <option>Match or event support</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="sponsorAmount" class="block text-sm font-medium text-emerald-100 mb-1.5">Amount (ugsh, optional)</label>
+              <input id="sponsorAmount" name="amount" type="number" min="0" step="1" inputmode="numeric" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none" placeholder="e.g. 10000">
+            </div>
+            <div>
+              <label for="sponsorMessage" class="block text-sm font-medium text-emerald-100 mb-1.5">Message</label>
+              <textarea id="sponsorMessage" name="message" rows="4" class="w-full rounded-md bg-night-green border border-emerald-700 px-3 py-2.5 text-white placeholder:text-emerald-400/50 focus:border-forest-accent focus:outline-none resize-y" placeholder="Share any details about your offer"></textarea>
+            </div>
+            <button type="submit" class="w-full sm:w-auto px-6 py-3 rounded-md bg-forest-accent text-night-green font-bold text-sm hover:bg-gold-accent transition-colors">Continue to WhatsApp</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="border-t border-emerald-900/80 bg-gradient-to-b from-deep-green to-night-green mt-auto">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-10">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+        <div class="sm:col-span-2">
+          <div class="flex items-center gap-3 cursor-pointer" data-action="logo">
+            <div class="w-9 h-9 shrink-0 rounded-full bg-white overflow-hidden flex items-center justify-center">
+              <img src="logo.png" alt="Abakiki FC logo" class="w-[155%] h-[155%] max-w-none object-contain translate-x-[4%] -translate-y-[2%]">
+            </div>
+            <span class="font-oswald text-lg sm:text-xl text-white">ABAKIKI FC</span>
+          </div>
+          <p class="text-emerald-300/60 text-xs sm:text-sm mt-3 sm:mt-4 max-w-sm">JOVOC League Class of 2023. Built on passion, driven by excellence. #GreenAndGold</p>
+        </div>
+        <div>
+          <h4 class="font-oswald text-white text-xs sm:text-sm tracking-wider mb-2 sm:mb-3">EXPLORE</h4>
+          <ul class="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-emerald-300/70">
+            <li><button data-goto="home" class="go-tab hover:text-forest-accent transition">Home</button></li>
+            <li><button data-goto="history" class="go-tab hover:text-forest-accent transition">History</button></li>
+            <li><button data-goto="players" class="go-tab hover:text-forest-accent transition">Players</button></li>
+            <li><button data-goto="cabinet" class="go-tab hover:text-forest-accent transition">Cabinet</button></li>
+            <li><button data-goto="shop" class="go-tab hover:text-forest-accent transition">Shop</button></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-oswald text-white text-xs sm:text-sm tracking-wider mb-2 sm:mb-3">CONNECT</h4>
+          <ul class="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-emerald-300/70">
+            <li><button data-action="social-twitter" class="hover:text-forest-accent transition">Twitter / X</button></li>
+            <li><button data-action="social-instagram" class="hover:text-forest-accent transition">Instagram</button></li>
+            <li><button data-action="social-youtube" class="hover:text-forest-accent transition">YouTube</button></li>
+            <li><button data-action="social-contact" class="hover:text-forest-accent transition">Contact</button></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-emerald-800/60 text-center text-[10px] sm:text-xs text-emerald-400/50 flex flex-col sm:flex-row justify-between gap-2">
+        <span>© 2023 Abakyiki FC · JOVOC League. All rights reserved.</span>
+        <span>Designed by Abakyiki graphics and IT Unit</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== CABINET DETAILS MODAL ========== -->
+  <div id="cabinetModal" class="modal-overlay">
+    <div class="modal-content">
+      <!-- Header image -->
+      <div class="relative h-52 sm:h-64 overflow-hidden rounded-t-[20px] bg-deep-green">
+        <img id="modalImage" src="" alt="Leader" class="w-full h-full object-cover object-[center_top]" />
+        <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#022c22] to-transparent"></div>
+        <button id="modalClose" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm border border-emerald-500/40 text-white flex items-center justify-center hover:bg-black/70 transition z-10">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="absolute bottom-4 left-5 z-10">
+          <span id="modalBadge" class="bg-gold-accent/95 text-night-green px-3 py-1 rounded-full text-[10px] font-bold tracking-wider">POSITION</span>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-6">
+        <h3 id="modalName" class="font-oswald text-2xl sm:text-3xl text-white">Name</h3>
+        <p id="modalRole" class="text-forest-accent text-sm font-semibold mt-1">Role</p>
+
+        <!-- Bio -->
+        <p id="modalBio" class="text-emerald-200/80 text-sm leading-relaxed mt-4">Bio goes here.</p>
+
+        <!-- Stats grid -->
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div class="text-center p-3 rounded-xl bg-deep-green/70 border border-emerald-800/60">
+            <span id="modalStat1Value" class="font-oswald text-xl text-gold-accent">—</span>
+            <p id="modalStat1Label" class="text-[10px] text-emerald-400/70 mt-1 uppercase tracking-wider">Stat</p>
+          </div>
+          <div class="text-center p-3 rounded-xl bg-deep-green/70 border border-emerald-800/60">
+            <span id="modalStat2Value" class="font-oswald text-xl text-gold-accent">—</span>
+            <p id="modalStat2Label" class="text-[10px] text-emerald-400/70 mt-1 uppercase tracking-wider">Stat</p>
+          </div>
+          <div class="text-center p-3 rounded-xl bg-deep-green/70 border border-emerald-800/60">
+            <span id="modalStat3Value" class="font-oswald text-xl text-gold-accent">—</span>
+            <p id="modalStat3Label" class="text-[10px] text-emerald-400/70 mt-1 uppercase tracking-wider">Stat</p>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="mt-5 space-y-2 text-sm">
+          <div class="flex items-center gap-2 text-emerald-300/80">
+            <span class="text-forest-accent">📧</span>
+            <span id="modalEmail">email@abakikifc.com</span>
+          </div>
+          <div class="flex items-center gap-2 text-emerald-300/80">
+            <span class="text-forest-accent">📞</span>
+            <span id="modalPhone">+254 700 000 000</span>
+          </div>
+          <div class="flex items-center gap-2 text-emerald-300/80">
+            <span class="text-forest-accent">📍</span>
+            <span id="modalLocation">Abakyiki, JOVOC Region</span>
+          </div>
+        </div>
+
+        <button id="modalCloseBtn" class="mt-6 w-full py-3 rounded-lg bg-gradient-to-r from-forest-accent to-primary-dark text-white font-bold text-sm hover:shadow-emerald-500/30 hover:scale-[1.01] transition-all">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TOAST ========== -->
+  <div id="toast" class="toast">✓ Action completed</div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    (function() {
+      /* ---------- Tab switching ---------- */
+      const tabs = document.querySelectorAll('[data-tab]');
+      const panels = document.querySelectorAll('.section-panel');
+      const goButtons = document.querySelectorAll('.go-tab');
+      const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+      const mobileTabs = document.getElementById('mobileTabs');
+      const menuIconOpen = document.getElementById('menuIconOpen');
+      const menuIconClose = document.getElementById('menuIconClose');
+
+      function switchTab(tabId) {
+        tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === tabId));
+        panels.forEach(panel => panel.classList.toggle('active', panel.id === 'panel-' + tabId));
+        closeMobileMenu();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closeMobileMenu() {
+        if (mobileTabs) mobileTabs.classList.add('hidden');
+        if (menuIconOpen) menuIconOpen.classList.remove('hidden');
+        if (menuIconClose) menuIconClose.classList.add('hidden');
+      }
+
+      function toggleMobileMenu() {
+        if (!mobileTabs) return;
+        const isHidden = mobileTabs.classList.contains('hidden');
+        if (isHidden) {
+          mobileTabs.classList.remove('hidden');
+          if (menuIconOpen) menuIconOpen.classList.add('hidden');
+          if (menuIconClose) menuIconClose.classList.remove('hidden');
+        } else {
+          closeMobileMenu();
+        }
+      }
+
+      tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
+      goButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.goto)));
+
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleMobileMenu();
+        });
+      }
+
+      /* ---------- Toast ---------- */
+      const toast = document.getElementById('toast');
+      let toastTimer;
+      function showToast(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
+      }
+
+      /* ============================================
+         FULL-SCREEN SLIDESHOW — 10s per slide
+         ============================================ */
+      const slides = document.querySelectorAll('#heroSlideshow .slide');
+      const dots = document.querySelectorAll('#slideDots .slide-dot');
+      const timerCount = document.getElementById('timerCount');
+      const SLIDE_DURATION = 4;
+      let currentSlide = 0;
+      let slideInterval = null;
+      let countdownInterval = null;
+      let secondsLeft = SLIDE_DURATION;
+
+      function goToSlide(index) {
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+        dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+        currentSlide = index;
+        secondsLeft = SLIDE_DURATION;
+        if (timerCount) timerCount.textContent = secondsLeft;
+      }
+
+      function nextSlide() {
+        goToSlide((currentSlide + 1) % slides.length);
+      }
+
+      function startSlideshow() {
+        if (slideInterval) clearInterval(slideInterval);
+        if (countdownInterval) clearInterval(countdownInterval);
+
+        countdownInterval = setInterval(() => {
+          secondsLeft--;
+          if (timerCount) timerCount.textContent = secondsLeft > 0 ? secondsLeft : SLIDE_DURATION;
+        }, 1000);
+
+        slideInterval = setInterval(() => {
+          nextSlide();
+          secondsLeft = SLIDE_DURATION;
+          if (timerCount) timerCount.textContent = secondsLeft;
+        }, SLIDE_DURATION * 1000);
+      }
+
+      dots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          goToSlide(parseInt(dot.dataset.dot, 10));
+          if (slideInterval) clearInterval(slideInterval);
+          if (countdownInterval) clearInterval(countdownInterval);
+          startSlideshow();
+        });
+      });
+
+      startSlideshow();
+
+      /* ---------- History background slides ---------- */
+      const historySlides = [...document.querySelectorAll('#historyOverview .history-bg-slide')];
+      let currentHistorySlide = 0;
+
+      function nextHistorySlide() {
+        if (historySlides.length < 2) return;
+
+        const outgoing = historySlides[currentHistorySlide];
+        const nextIndex = (currentHistorySlide + 1) % historySlides.length;
+        const incoming = historySlides[nextIndex];
+
+        outgoing.classList.remove('active');
+        outgoing.classList.add('exit-right');
+        incoming.classList.add('active');
+        currentHistorySlide = nextIndex;
+
+        setTimeout(() => {
+          outgoing.classList.add('reset-left');
+          outgoing.classList.remove('exit-right');
+          void outgoing.offsetWidth;
+          outgoing.classList.remove('reset-left');
+        }, 1000);
+      }
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setInterval(nextHistorySlide, 4000);
+      }
+
+      /* ============================================
+         CABINET DATA — Sample data for each leader
+         ============================================ */
+      const cabinetData = {
+        president: {
+          name: 'Jonathan A. Mwangi',
+          role: 'Club President & Founder',
+          badge: 'PRESIDENT',
+          image: 'elius.jpeg',
+          bio: 'Jonathan founded Abakiki FC in 2023 with a bold vision to build a community-driven football club in the JOVOC League. With over 15 years of sports leadership experience, he oversees the club\'s strategy, partnerships, and long-term development.',
+          stats: [
+            { value: '15+', label: 'Years Exp' },
+            { value: '2023', label: 'Founded' },
+            { value: '24', label: 'Signings' }
+          ],
+          email: 'president@abakikifc.com',
+          phone: '+254 700 111 001',
+          location: 'Abakiki HQ, JOVOC Region'
+        },
+        vp: {
+          name: 'Grace Wanjiku',
+          role: 'Vice President',
+          badge: 'VICE PRESIDENT',
+          image: 'elius.jpeg',
+          bio: 'Grace serves as Vice President, supporting the President in strategic decision-making and leading the club\'s community outreach programs. She is a former national-level athlete and a passionate advocate for youth sports development.',
+          stats: [
+            { value: '10+', label: 'Years Exp' },
+            { value: '8', label: 'Programs' },
+            { value: '500+', label: 'Youth Reached' }
+          ],
+          email: 'vp@abakikifc.com',
+          phone: '+254 700 111 002',
+          location: 'Abakiki Community Center'
+        },
+        sg: {
+          name: 'David Otieno',
+          role: 'Secretary General',
+          badge: 'SECRETARY GENERAL',
+          image: 'elius.jpeg',
+          bio: 'David manages all administrative and governance affairs of Abakiki FC. With a background in sports law and club administration, he ensures the club remains compliant with JOVOC League regulations while fostering transparent communication.',
+          stats: [
+            { value: '12+', label: 'Years Exp' },
+            { value: '100%', label: 'Compliance' },
+            { value: '50+', label: 'Meetings/Yr' }
+          ],
+          email: 'secretary@abakikifc.com',
+          phone: '+254 700 111 003',
+          location: 'Abakiki HQ, JOVOC Region'
+        },
+        treasurer: {
+          name: 'Amina Hassan',
+          role: 'Treasurer',
+          badge: 'TREASURER',
+          image: 'elius.jpeg',
+          bio: 'Amina oversees the financial health of Abakiki FC, managing budgets, sponsorships, and player contracts. She is a certified accountant with a decade of experience in sports finance and a passion for sustainable club growth.',
+          stats: [
+            { value: '$250K', label: 'Budget' },
+            { value: '10+', label: 'Years Exp' },
+            { value: '15', label: 'Sponsors' }
+          ],
+          email: 'treasurer@abakikifc.com',
+          phone: '+254 700 111 004',
+          location: 'Abakiki Finance Office'
+        },
+        manager: {
+          name: 'Peter Kamau',
+          role: 'Team Manager',
+          badge: 'TEAM MANAGER',
+          image: 'elius.jpeg',
+          bio: 'Peter leads the day-to-day operations of the first team, coordinating training, travel, and match logistics. A former professional footballer, he brings invaluable on-pitch experience to the Class of 2023.',
+          stats: [
+            { value: '8+', label: 'Years Exp' },
+            { value: '24', label: 'Players' },
+            { value: '6', label: 'Matches Won' }
+          ],
+          email: 'manager@abakikifc.com',
+          phone: '+254 700 111 005',
+          location: 'Abakiki Training Ground'
+        }
+      };
+
+      /* ---------- Modal logic ---------- */
+      const modal = document.getElementById('cabinetModal');
+      const modalImage = document.getElementById('modalImage');
+      const modalName = document.getElementById('modalName');
+      const modalRole = document.getElementById('modalRole');
+      const modalBadge = document.getElementById('modalBadge');
+      const modalBio = document.getElementById('modalBio');
+      const modalStat1Value = document.getElementById('modalStat1Value');
+      const modalStat1Label = document.getElementById('modalStat1Label');
+      const modalStat2Value = document.getElementById('modalStat2Value');
+      const modalStat2Label = document.getElementById('modalStat2Label');
+      const modalStat3Value = document.getElementById('modalStat3Value');
+      const modalStat3Label = document.getElementById('modalStat3Label');
+      const modalEmail = document.getElementById('modalEmail');
+      const modalPhone = document.getElementById('modalPhone');
+      const modalLocation = document.getElementById('modalLocation');
+      const modalClose = document.getElementById('modalClose');
+      const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+      function openModal(key) {
+        const data = cabinetData[key];
+        if (!data) return;
+
+        modalImage.src = data.image;
+        modalImage.alt = data.name;
+        modalName.textContent = data.name;
+        modalRole.textContent = data.role;
+        modalBadge.textContent = data.badge;
+        modalBio.textContent = data.bio;
+        modalStat1Value.textContent = data.stats[0].value;
+        modalStat1Label.textContent = data.stats[0].label;
+        modalStat2Value.textContent = data.stats[1].value;
+        modalStat2Label.textContent = data.stats[1].label;
+        modalStat3Value.textContent = data.stats[2].value;
+        modalStat3Label.textContent = data.stats[2].label;
+        modalEmail.textContent = data.email;
+        modalPhone.textContent = data.phone;
+        modalLocation.textContent = data.location;
+
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeModal() {
+        modal.classList.remove('show');
+        document.body.style.overflow = '';
+      }
+
+      const cabinetOverview = document.getElementById('cabinetOverview');
+      const presidentMessageView = document.getElementById('presidentMessageView');
+
+      function openPresidentMessage() {
+        cabinetOverview.classList.add('hidden');
+        presidentMessageView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closePresidentMessage() {
+        presidentMessageView.classList.add('hidden');
+        cabinetOverview.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      const historyOverview = document.getElementById('historyOverview');
+      const historyStoryView = document.getElementById('historyStoryView');
+
+      function openHistoryStory() {
+        historyOverview.classList.add('hidden');
+        historyStoryView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closeHistoryStory() {
+        historyStoryView.classList.add('hidden');
+        historyOverview.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      const shopOverview = document.getElementById('shopOverview');
+      const merchCatalogView = document.getElementById('merchCatalogView');
+
+      function openMerchCatalog() {
+        shopOverview.classList.add('hidden');
+        merchCatalogView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closeMerchCatalog() {
+        merchCatalogView.classList.add('hidden');
+        shopOverview.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      const cartPageView = document.getElementById('cartPageView');
+      const cartItems = document.getElementById('cartItems');
+      const cartTotal = document.getElementById('cartTotal');
+      const cartQuantitySummary = document.getElementById('cartQuantitySummary');
+      const cartCheckoutForm = document.getElementById('cartCheckoutForm');
+      const cartSubmitButton = document.getElementById('cartSubmitButton');
+      const cart = new Map();
+      let shopReturnView = shopOverview;
+
+      const merchandise = {
+        'home-kit': { name: 'Home Kit 2023', price: 60000 },
+        'away-kit': { name: 'Away Kit 2023', price: 58000 },
+        'goalkeeper-kit': { name: 'Goalkeeper Kit', price: 60000 },
+        'training-jersey': { name: 'Training Jersey', price: 35000 },
+        'youth-home': { name: 'Youth Home Jersey', price: 40000 },
+        'youth-away': { name: 'Youth Away Jersey', price: 40000 },
+        'long-sleeve': { name: 'Long Sleeve Jersey', price: 55000 },
+        supporter: { name: 'Classic Supporter Jersey', price: 45000 },
+        commemorative: { name: 'Commemorative Jersey', price: 60000 },
+        'limited-edition': { name: 'Limited Edition Jersey', price: 60000 }
+      };
+
+      const ugxFormatter = new Intl.NumberFormat('en-UG', { maximumFractionDigits: 0 });
+      const formatPrice = (amount) => `UGX ${ugxFormatter.format(amount)}`;
+
+      function updateCartCount() {
+        const quantity = [...cart.values()].reduce((sum, count) => sum + count, 0);
+        document.querySelectorAll('.cart-count').forEach(count => {
+          count.textContent = quantity;
+        });
+      }
+
+      function renderCart() {
+        cartItems.replaceChildren();
+        let itemCount = 0;
+        let total = 0;
+
+        if (cart.size === 0) {
+          const emptyMessage = document.createElement('p');
+          emptyMessage.className = 'rounded-lg border border-emerald-800/70 bg-card-gradient p-5 text-emerald-300/70 text-sm';
+          emptyMessage.textContent = 'Your cart is empty. Add merchandise to start a reservation.';
+          cartItems.appendChild(emptyMessage);
+        }
+
+        cart.forEach((quantity, productId) => {
+          const product = merchandise[productId];
+          itemCount += quantity;
+          total += product.price * quantity;
+
+          const row = document.createElement('div');
+          row.className = 'flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-800/70 bg-card-gradient p-4';
+          const details = document.createElement('div');
+          details.className = 'min-w-0';
+          const name = document.createElement('h3');
+          name.className = 'font-oswald text-lg text-white';
+          name.textContent = product.name;
+          const price = document.createElement('p');
+          price.className = 'text-emerald-300/70 text-sm mt-1';
+          price.textContent = `${formatPrice(product.price)} each`;
+          details.append(name, price);
+
+          const controls = document.createElement('div');
+          controls.className = 'flex items-center gap-2';
+          const decrease = document.createElement('button');
+          decrease.type = 'button';
+          decrease.dataset.cartDelta = '-1';
+          decrease.dataset.productId = productId;
+          decrease.setAttribute('aria-label', `Remove one ${product.name}`);
+          decrease.className = 'w-8 h-8 rounded border border-emerald-700 text-white hover:bg-emerald-900';
+          decrease.textContent = '-';
+          const count = document.createElement('span');
+          count.className = 'min-w-6 text-center text-white font-semibold';
+          count.textContent = quantity;
+          const increase = document.createElement('button');
+          increase.type = 'button';
+          increase.dataset.cartDelta = '1';
+          increase.dataset.productId = productId;
+          increase.setAttribute('aria-label', `Add one ${product.name}`);
+          increase.className = 'w-8 h-8 rounded border border-emerald-700 text-white hover:bg-emerald-900';
+          increase.textContent = '+';
+          const lineTotal = document.createElement('strong');
+          lineTotal.className = 'ml-2 font-oswald text-lg text-gold-accent';
+          lineTotal.textContent = formatPrice(product.price * quantity);
+          const remove = document.createElement('button');
+          remove.type = 'button';
+          remove.dataset.cartRemove = productId;
+          remove.setAttribute('aria-label', `Remove ${product.name} from cart`);
+          remove.className = 'ml-1 px-2 py-1 text-xs text-emerald-300/70 hover:text-red-300';
+          remove.textContent = 'Remove';
+          controls.append(decrease, count, increase, lineTotal, remove);
+          row.append(details, controls);
+          cartItems.appendChild(row);
+        });
+
+        cartTotal.textContent = formatPrice(total);
+        cartQuantitySummary.textContent = `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`;
+        cartSubmitButton.disabled = cart.size === 0;
+        updateCartCount();
+      }
+
+      function openCartView() {
+        shopReturnView = merchCatalogView.classList.contains('hidden') ? shopOverview : merchCatalogView;
+        shopOverview.classList.add('hidden');
+        merchCatalogView.classList.add('hidden');
+        cartPageView.classList.remove('hidden');
+        renderCart();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function closeCartView() {
+        cartPageView.classList.add('hidden');
+        shopReturnView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      document.querySelectorAll('[data-cart-product]').forEach(button => {
+        button.addEventListener('click', () => {
+          const productId = button.dataset.cartProduct;
+          const product = merchandise[productId];
+          if (!product) return;
+          cart.set(productId, (cart.get(productId) || 0) + 1);
+          shopReturnView = button.closest('#merchCatalogView') ? merchCatalogView : shopOverview;
+          openCartView();
+        });
+      });
+
+      cartItems.addEventListener('click', (event) => {
+        const button = event.target.closest('button');
+        if (!button) return;
+
+        if (button.dataset.cartRemove) {
+          cart.delete(button.dataset.cartRemove);
+        } else if (button.dataset.cartDelta) {
+          const productId = button.dataset.productId;
+          const quantity = (cart.get(productId) || 0) + Number(button.dataset.cartDelta);
+          if (quantity <= 0) cart.delete(productId);
+          else cart.set(productId, quantity);
+        }
+
+        renderCart();
+      });
+
+      if (cartCheckoutForm) {
+        cartCheckoutForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+          if (cart.size === 0) return;
+
+          const formData = new FormData(cartCheckoutForm);
+          const itemLines = [...cart.entries()].map(([productId, quantity]) => {
+            const product = merchandise[productId];
+            return `${product.name} x ${quantity} - ${formatPrice(product.price * quantity)}`;
+          });
+          const total = [...cart.entries()].reduce((sum, [productId, quantity]) => {
+            return sum + merchandise[productId].price * quantity;
+          }, 0);
+          const message = [
+            'Abakiki FC merchandise reservation',
+            `Name: ${formData.get('customerName')}`,
+            `Phone: ${formData.get('customerPhone')}`,
+            'Items:',
+            ...itemLines,
+            `Total: ${formatPrice(total)}`
+          ].join('\n');
+          const whatsappUrl = `https://wa.me/256769977422?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        });
+      }
+
+      // Attach "View Details" buttons
+      document.querySelectorAll('[data-cabinet]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModal(btn.dataset.cabinet);
+        });
+      });
+
+      if (modalClose) modalClose.addEventListener('click', closeModal);
+      if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
+        });
+      }
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('show')) closeModal();
+      });
+
+      /* ---------- Action handlers ---------- */
+      const actionHandlers = {
+        'logo': () => showToast(' Abakyiki FC · Home'),
+        'stat-season': () => showToast('Inaugural JOVOC League season'),
+        'stat-squad': () => showToast('24 players in the Class of 2023'),
+        'stat-points': () => showToast('13 points earned so far'),
+        'stat-ambition': () => showToast(' Unlimited ambition · Green & Gold'),
+        'read-more-history': openHistoryStory,
+        'history-story-back': closeHistoryStory,
+        'player-k-mwangi': () => showToast(' K. Mwangi · Forward · #10'),
+        'player-j-okafor': () => showToast(' J. Okafor · Midfielder · #7'),
+        'player-l-ndlovu': () => showToast(' L. Ndlovu · Defender · #4'),
+        'player-s-diarra': () => showToast(' S. Diarra · Goalkeeper · #1'),
+        'view-full-squad': () => showToast(' Full squad page coming soon'),
+        'open-cart': openCartView,
+        'cart-back': closeCartView,
+        'view-all-merch': openMerchCatalog,
+        'merch-catalog-back': closeMerchCatalog,
+        'social-twitter': () => showToast(' Redirecting to Twitter / X'),
+        'social-instagram': () => showToast(' Redirecting to Instagram'),
+        'social-youtube': () => showToast(' Redirecting to YouTube'),
+        'social-contact': () => showToast(' Opening contact page'),
+        'cabinet-president-message': openPresidentMessage,
+        'president-message-back': closePresidentMessage,
+      };
+
+      document.querySelectorAll('[data-action]').forEach(el => {
+        el.addEventListener('click', (e) => {
+          const action = el.dataset.action;
+          if (actionHandlers[action]) {
+            e.preventDefault();
+            actionHandlers[action]();
+          }
+        });
+      });
+
+      const sponsorshipForm = document.getElementById('sponsorshipForm');
+      if (sponsorshipForm) {
+        sponsorshipForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const formData = new FormData(sponsorshipForm);
+          const amount = formData.get('amount');
+          const message = [
+            'Sponsorship inquiry for Abakiki FC Class of 2023',
+            `Name: ${formData.get('name')}`,
+            `Phone: ${formData.get('phone')}`,
+            `Email: ${formData.get('email') || 'Not provided'}`,
+            `Sponsorship: ${formData.get('sponsorshipType')}`,
+            `Amount: ${amount ? `KSh ${amount}` : 'Not specified'}`,
+            `Message: ${formData.get('message') || 'None'}`
+          ].join('\n');
+          const whatsappUrl = `https://wa.me/256769977422?text=${encodeURIComponent(message)}`;
+          window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        });
+      }
+
+    })();
+  </script>
+
+</body>
+</html>
